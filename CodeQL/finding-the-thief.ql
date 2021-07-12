@@ -12,7 +12,7 @@ where t.getHeight() > 150
 	and exists(string c | t.getHairColor() = c)
 
 // not younger than 30
-	and not t.getAge() > 30
+	and not t.getAge() < 30
 
 // lives in east
 	and t.getLocation() = "east"
