@@ -54,10 +54,9 @@
 // select mi
 
 // Question 1.2: Find the expressions that resulted in these macro invocations.
+// Hint: We need to get the expression of the macro invocation we found in 1.1
 
 import cpp
 from MacroInvocation mi
 where mi.getMacroName().regexpMatch("ntoh(s|l|ll)")
 select mi.getExpr()
-
-// Hint: We need to get the expression of the macro invocation we found in 1.1
