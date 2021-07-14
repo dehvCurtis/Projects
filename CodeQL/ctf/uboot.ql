@@ -47,12 +47,17 @@
 
 // got stuck on this for awhile, until i realized that the project I was querying (fish-shell) simply doesn't contain any of these Function calls. After widening my search to torvalds/linus, i was able to find some results.
 
+// import cpp
+// from MacroInvocation mi
+// where mi.getMacroName().regexpMatch("ntoh(s|l|ll)")
+// // where mi.getMacroName() = "ntohs" or mi.getMacroName() = "ntohl" or mi.getMacroName() = "ntohll"
+// select mi
+
+// Question 1.2: Find the expressions that resulted in these macro invocations.
+
 import cpp
 from MacroInvocation mi
 where mi.getMacroName().regexpMatch("ntoh(s|l|ll)")
-// where mi.getMacroName() = "ntohs" or mi.getMacroName() = "ntohl" or mi.getMacroName() = "ntohll"
-select mi
-
-// Question 1.2: Find the expressions that resulted in these macro invocations.
+select mi.getExpr()
 
 // Hint: We need to get the expression of the macro invocation we found in 1.1
