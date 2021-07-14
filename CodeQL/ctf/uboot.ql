@@ -27,7 +27,30 @@
 
 // at first i tried linking via `and` statements until I saw the hint. It also took me a moment to figure out the regexpMatch. For some reason i couldn't find a reference to regexpMatch in the library search https://codeql.github.com/codeql-standard-libraries/search.html?addsearch=regexpmatch. I found a reference on https://codeql.github.com/docs/writing-codeql-queries/introduction-to-ql/
 // no definition found for ntohll
+
+// import cpp
+// from Macro m 
+// where m.getName().regexpMatch("ntoh(l|ll|s)")
+// select m
+
+// Step 1: Finding the calls to memcpy, ntohl, ntohll, and ntohs
+// Question 1.0: Find all the calls to memcpy. Hint: Use the auto-completion feature on the function call variable to 
+//   guess how to express the relation between a function call and a function, and how to bind them.
+
+//import cpp
+//from FunctionCall c
+//where c.getTarget().toString() = "memcpy"
+//select c
+
+// Question 1.1: Find all the calls to ntohl, ntohll, and ntohs. Hint: calls to ntohl, ntohll, and ntohs are macro invocations, 
+//   unlike memcpy which is a function call.
+
 import cpp
-from Macro m 
-where m.getName().regexpMatch("ntoh(l|ll|s)")
-select m
+from MacroInvocation mi
+where mi.getMacroName().regexpMatch("ntoh(s|l|ll)")
+// where mi.getMacroName() = "ntohs" or mi.getMacroName() = "ntohl" or mi.getMacroName() = "ntohll"
+select mi
+
+// Question 1.2: Find the expressions that resulted in these macro invocations.
+
+// Hint: We need to get the expression of the macro invocation we found in 1.1
