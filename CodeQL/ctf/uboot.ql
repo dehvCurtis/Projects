@@ -45,6 +45,8 @@
 // Question 1.1: Find all the calls to ntohl, ntohll, and ntohs. Hint: calls to ntohl, ntohll, and ntohs are macro invocations, 
 //   unlike memcpy which is a function call.
 
+// got stuck on this for awhile, until i realized that the project I was querying (fish-shell) simply doesn't contain any of these Function calls. After widening my search to torvalds/linus, i was able to find some results.
+
 import cpp
 from MacroInvocation mi
 where mi.getMacroName().regexpMatch("ntoh(s|l|ll)")
