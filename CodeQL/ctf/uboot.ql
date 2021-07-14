@@ -26,7 +26,7 @@
 //select m
 
 // at first i tried linking via `and` statements until I saw the hint. It also took me a moment to figure out the regexpMatch. For some reason i couldn't find a reference to regexpMatch in the library search https://codeql.github.com/codeql-standard-libraries/search.html?addsearch=regexpmatch. I found a reference on https://codeql.github.com/docs/writing-codeql-queries/introduction-to-ql/
-
+// no definition found for ntohll
 import cpp
 from Macro m 
 where m.getName().regexpMatch("ntoh(l|ll|s)")
