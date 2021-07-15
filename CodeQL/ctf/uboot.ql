@@ -65,35 +65,15 @@
 // Question 2.0: Write a QL class that finds all the top-level expressions associated with the macro invocations to the calls to ntohl, ntohll, and ntohs.
 // Hint: Querying this class should give you the same results as in question 1.2
 
-/**
-* @kind path-problem
-*/
-
-import cpp
-import semmle.code.cpp.dataflow.TaintTracking
-import DataFlow::PathGraph
 
 // reference https://help.semmle.com/QL/ql-handbook/types.html#classes
 // reference https://codeql.github.com/codeql-standard-libraries/cpp/semmle/code/cpp/dataflow/internal/tainttracking1/TaintTrackingImpl.qll/type.TaintTrackingImpl$Configuration.html
-class NetworkByteSwap extends Expr {
-  NetworkByteSwap() {
+class topLvl extends Expr {
+    topLvl() {
     exists( MacroInvocation mi | mi.getMacroName().regexpMatch("ntoh(s|l|ll)") and this = mi.getExpr() 
     )
   }
 }
- 
-class Config extends TaintTracking::Configuration {
-  Config() { this = "NetworkToMemFuncLength" }
- 
-  override predicate isSource(DataFlow::Node source) { source.asExpr() instanceof topLevelExpr }
-  override predicate isSink(DataFlow::Node sink) {
-    exists(FunctionCall c | c.getTarget().getName() = "memcpy" and sink.asExpr() = c.getArgument(2))
-  }
-}
- 
-from Config cfg, DataFlow::PathNode source, DataFlow::PathNode sink
-where cfg.hasFlowPath(source, sink)
-select sink, source, sink, "ntoh flows to memcpy"
 
 
 // Question 2.1: Create the configuration class, by defining the source and sink. The source should be calls to ntohl, ntohll, or ntohs. The sink should be the size argument of an unsafe call to memcpy.
