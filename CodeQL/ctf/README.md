@@ -122,7 +122,7 @@ class Config extends TaintTracking::Configuration {
 
   // The sink should be the size argument of calls to memcpy.
   override predicate isSink(DataFlow::Node sink) {
-    // https://codeql.github.com/codeql-standard-libraries/java/semmle/code/java/Expr.qll/predicate.Expr$ClassInstanceExpr$getArgument.1.html
+    // https://codeql.github.com/codeql-standard-libraries/cpp/semmle/code/cpp/exprs/Call.qll/predicate.Call$Call$getArgument.1.html
     exists(FunctionCall fc | fc.getTarget().getName().regexpMatch("memcpy") and sink.asExpr() = fc.getArgument(2))
   }
 }
