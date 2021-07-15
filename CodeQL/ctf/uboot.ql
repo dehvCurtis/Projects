@@ -65,6 +65,22 @@
 // Question 2.0: Write a QL class that finds all the top-level expressions associated with the macro invocations to the calls to ntohl, ntohll, and ntohs.
 // Hint: Querying this class should give you the same results as in question 1.2
 
+
+// reference https://help.semmle.com/QL/ql-handbook/types.html#classes
+// reference https://codeql.github.com/codeql-standard-libraries/cpp/semmle/code/cpp/dataflow/internal/tainttracking1/TaintTrackingImpl.qll/type.TaintTrackingImpl$Configuration.html
+class topLvl extends Expr {
+    topLvl() {
+    exists( MacroInvocation mi | mi.getMacroName().regexpMatch("ntoh(s|l|ll)") and this = mi.getExpr() 
+    )
+  }
+}
+
+
+// Question 2.1: Create the configuration class, by defining the source and sink. The source should be calls to ntohl, ntohll, or ntohs. The sink should be the size argument of an unsafe call to memcpy.
+// Hint: The source should be an instance of the class you wrote in part 2.0.
+// Hint: The sink should be the size argument of calls to memcpy.
+
+
 /**
 * @kind path-problem
 */
@@ -77,7 +93,7 @@ import DataFlow::PathGraph
 // reference https://codeql.github.com/codeql-standard-libraries/cpp/semmle/code/cpp/dataflow/internal/tainttracking1/TaintTrackingImpl.qll/type.TaintTrackingImpl$Configuration.html
 class NetworkByteSwap extends Expr {
   NetworkByteSwap() {
-    exists( MacroInvocation mi | mi.getMacroName().regexpMatch("ntoh(s|l|ll)") and this = mi.getExpr() 
+    exists( MacroInvocation mi | mi.getMacroName().regexpMatch("ntoh(s|l|ll)") and this = mi.getExpr() // checks calls to (ntohl, ntohll, ntohs)
     )
   }
 }
@@ -85,17 +101,16 @@ class NetworkByteSwap extends Expr {
 class Config extends TaintTracking::Configuration {
   Config() { this = "NetworkToMemFuncLength" }
  
-  override predicate isSource(DataFlow::Node source) { source.asExpr() instanceof topLevelExpr }
+  // The source should be an instance of the class you wrote in part 2.0.
+  override predicate isSource(DataFlow::Node source) { source.asExpr() instanceof NetworkByteSwap }
+
+  // The sink should be the size argument of calls to memcpy.
   override predicate isSink(DataFlow::Node sink) {
-    exists(FunctionCall c | c.getTarget().getName() = "memcpy" and sink.asExpr() = c.getArgument(2))
+    // https://codeql.github.com/codeql-standard-libraries/java/semmle/code/java/Expr.qll/predicate.Expr$ClassInstanceExpr$getArgument.1.html
+    exists(FunctionCall fc | fc.getTarget().getName().regexpMatch("memcpy") and sink.asExpr() = fc.getArgument(2))
   }
 }
  
 from Config cfg, DataFlow::PathNode source, DataFlow::PathNode sink
 where cfg.hasFlowPath(source, sink)
 select sink, source, sink, "ntoh flows to memcpy"
-
-
-// Question 2.1: Create the configuration class, by defining the source and sink. The source should be calls to ntohl, ntohll, or ntohs. The sink should be the size argument of an unsafe call to memcpy.
-// Hint: The source should be an instance of the class you wrote in part 2.0.
-// Hint: The sink should be the size argument of calls to memcpy.
